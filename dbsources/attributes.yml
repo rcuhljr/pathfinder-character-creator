@@ -1,0 +1,28 @@
+--- #attributes
+tablequery: >
+    CREATE TABLE tblattributes
+    (
+    id int,
+    name varchar(40),
+    abbrev varchar(40)
+    );
+    
+attributes:
+    - name:     Strength
+      abbrev:    STR
+      id:       1
+    - name:     Dexterity
+      abbrev:    DEX
+      id:       2
+    - name:     Constitution
+      abbrev:    CON
+      id:       3
+    - name:     Intelligence
+      abbrev:    INT
+      id:       4
+    - name:     Wisdom
+      abbrev:    WIS
+      id:       5
+    - name:     Charisma
+      abbrev:    CHA
+      id:       6

@@ -1,0 +1,19 @@
+--- #genders
+tablequery: >
+    CREATE TABLE tblgenders
+    (
+    id int,
+    name varchar(40),
+    abbrev varchar(4)
+    );
+    
+genders:
+    - name:     Male
+      abbrev:   M
+      id:       1      
+    - name:     Female
+      abbrev:   F
+      id:       2
+    - name:     Unspecified
+      abbrev:   UN
+      id:       3

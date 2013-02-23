@@ -44,12 +44,30 @@ class DataContainer
     end    
   end
   
-  # Return alignments [name, abbrev, id]
+  # Returns alignments [name, abbrev, id]
   
   def get_alignments
     if @alignments.nil?
       @alignments = @db.execute( "Select name, abbrev, id from tblalignments")
     end
     return @alignments
+  end
+  
+  # Returns pointbuys [type, id] 
+  
+  def get_pointbuys
+    if @pointbuys.nil?
+      @pointbuys = @db.execute( "Select type, id from tblpointbuys" )
+    end
+    return @pointbuys    
+  end
+  
+  # Returns genders [name, abbrev, id]
+  
+  def get_genders
+    if @genders.nil?
+      @genders = @db.execute( "Select name, abbrev, id from tblgenders" )
+    end
+    return @genders    
   end
 end

@@ -6,6 +6,7 @@ require 'gtk2'
 require 'logger'
 load 'datamanager.rb'
 load 'logicprocess.rb'
+load 'racestatstab.rb'
 
 # Main GUI for the program, contains all of our UI code.
 
@@ -28,6 +29,7 @@ class Main
     
     @char_file_filter = Gtk::FileFilter.new
     @char_file_filter.add_pattern("*.pcf")
+    @race_stats_tab = RaceStatsTab.new(@log, @process)
     
     content = Gtk::VBox.new(homogeneous = false, spacing = nil)
     @main_content = Gtk::VBox.new(homogeneous = false, spacing = nil)
@@ -83,7 +85,7 @@ class Main
     
     tab_holder = Gtk::Notebook.new
     
-    build_race_stats(tab_holder, char)
+    @race_stats_tab.build_race_stats(tab_holder, char)
     
     tab_holder.append_page(Gtk::Label.new("Lorem Ipsum"), Gtk::Label.new("Other"))
     
@@ -92,45 +94,6 @@ class Main
     @main_content.show_all
   end
   
-  # build the race and stats tab
-  
-  def build_race_stats(tab_holder, char)
-    tab_label = Gtk::Label.new("Race & Stats")    
-    
-    name_label = Gtk::Label.new("Character Name:")
-    name_entry = Gtk::Entry.new()
-    name_entry.text = char.name unless char.name.nil?
-    
-    player_label = Gtk::Label.new("Player Name:")
-    player_entry = Gtk::Entry.new()
-    player_entry.text = char.player unless char.player.nil?
-    
-    alignment_label = Gtk::Label.new("Alignment:")
-    alignment_entry = Gtk::ComboBox.new(is_text_only = true)   
-    @process.get_alignments.each_with_index do |align_text, index|
-      alignment_entry.append_text(align_text)
-      alignment_entry.set_active(index) if align_text == char.alignment
-    end
-    
-    race_stats_box = Gtk::VBox.new(homogeneous = false, spacing = nil)
-    header_row = Gtk::HBox.new(homogeneous = false, spacing = nil)
-    
-    header_row.pack_start(name_label, false, false, 2)  
-    header_row.pack_start(name_entry, false, false, 2)
-    header_row.pack_start(player_label, false, false, 2)
-    header_row.pack_start(player_entry, false, false, 2)
-    header_row.pack_start(alignment_label, false, false, 2)
-    header_row.pack_start(alignment_entry, false, false, 2)
-    
-    name_entry.signal_connect("changed") { |e| char.name = e.text }
-    player_entry.signal_connect("changed") { |e| char.player = e.text }
-    alignment_entry.signal_connect("changed") { |e| char.alignment = e.active_text }
-    
-    race_stats_box.pack_start(header_row, false, false, 0)
-    
-    tab_holder.append_page(race_stats_box, tab_label)    
-  end
-
   # method for handling the new character menu option and key shortcuts.
   
   def new_character    

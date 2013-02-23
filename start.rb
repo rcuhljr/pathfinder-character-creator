@@ -4,7 +4,7 @@ require 'logger'
 
 log = Logger.new(STDOUT)
 log.level = Logger::DEBUG
-wipedb = false
+wipedb = true
 
 if not File.exists?("pcu.db") or wipedb then
   log.info "No database found, creating."

@@ -32,11 +32,28 @@ class LogicProcess
     @char = @dm.load(filename)
   end
   
-  # Return an array of alignments
+  # Returns an array of alignments
   
   def get_alignments
     alignments = []
     @dc.get_alignments.each {|alignment| alignments.push(alignment[0]) }    
     return alignments
   end
+  
+  # Returns an array of point buys
+  
+  def get_pointbuys
+    pointbuys = []
+    @dc.get_pointbuys.each {|pointbuy| pointbuys.push(alignment[0]) }    
+    return pointbuys
+  end
+  
+  # Returns an array of genders
+  
+  def get_genders
+    genders = []
+    @dc.get_genders.each {|gender| genders.push(gender[0]) }    
+    return genders
+  end
+  
 end
