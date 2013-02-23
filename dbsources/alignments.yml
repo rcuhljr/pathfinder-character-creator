@@ -1,0 +1,37 @@
+--- #Alignments
+tablequery: >
+    CREATE TABLE tblalignments
+    (
+    id int,
+    name varchar(40),
+    abbrev varchar(4)
+    );
+    
+alignments:
+    - name:     Lawful Good
+      abbrev:   LG
+      id:       1      
+    - name:     Lawful Neutral
+      abbrev:   LN
+      id:       2
+    - name:     Lawful Evil
+      abbrev:   LE
+      id:       3
+    - name:     Neutral
+      abbrev:   N
+      id:       4
+    - name:     Neutral Good
+      abbrev:   NG
+      id:       5
+    - name:     Neutral Evil
+      abbrev:   NE
+      id:       6
+    - name:     Chaotic Evil
+      abbrev:   LN
+      id:       7
+    - name:     Chaotic Neutral
+      abbrev:   LN
+      id:       8
+    - name:     Chaotic Good
+      abbrev:   LN
+      id:       9
