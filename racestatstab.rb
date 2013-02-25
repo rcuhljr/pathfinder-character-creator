@@ -1,3 +1,5 @@
+load 'utilities.rb'
+
 class RaceStatsTab
   def initialize(logger, process)
     @log = logger
@@ -56,10 +58,10 @@ class RaceStatsTab
     header_row.pack_start(gender_label, false, false, 2)
     header_row.pack_start(gender_entry, false, false, 2)
     
-    name_entry.signal_connect("changed") { |e| char.name = e.text }
-    player_entry.signal_connect("changed") { |e| char.player = e.text }
-    alignment_entry.signal_connect("changed") { |e| char.alignment = e.active_text }
-    gender_entry.signal_connect("changed") { |e| char.gender = e.active_text }
+    name_entry.signal_connect("changed") { |e| @process.set_name(e.text) }
+    player_entry.signal_connect("changed") { |e| @process.set_player(e.text) }
+    alignment_entry.signal_connect("changed") { |e| @process.set_alignment(e.active_text) }
+    gender_entry.signal_connect("changed") { |e| @process.set_gender(e.active_text) }
   end
   
   def build_stats_box(char, stats_box)
@@ -73,9 +75,13 @@ class RaceStatsTab
     spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
     spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
     
-    spin_entries.each { |entry| 
+    base_stats = char.base_attribute_scores
+    race_stats = char.race_attribute_scores
+    misc_stats = char.misc_attribute_scores
+    
+    spin_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::SpinButton
-      entry.value = 10
+      entry.value = base_stats[index-1]
     }
     
     labels = []
@@ -96,10 +102,11 @@ class RaceStatsTab
     race_entries.push(Gtk::Entry.new())
     race_entries.push(Gtk::Entry.new())
     
-    race_entries.each { |entry| 
+    race_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
       entry.editable = false
       entry.width_chars = 3
+      entry.text = race_stats[index-1].to_s
     }
 
     misc_entries = []
@@ -111,10 +118,11 @@ class RaceStatsTab
     misc_entries.push(Gtk::Entry.new())
     misc_entries.push(Gtk::Entry.new())
     
-    misc_entries.each { |entry| 
+    misc_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
       entry.editable = false 
       entry.width_chars = 3
+      entry.text = misc_stats[index-1].to_s
     }
     
     total_entries = []
@@ -126,10 +134,11 @@ class RaceStatsTab
     total_entries.push(Gtk::Entry.new())
     total_entries.push(Gtk::Entry.new())
     
-    total_entries.each { |entry| 
+    total_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
       entry.editable = false 
       entry.width_chars = 3
+      entry.text = (spin_entries[index].value + race_entries[index].text.to_i + misc_entries[index].text.to_i).to_i.to_s
     }
     
     
@@ -142,11 +151,27 @@ class RaceStatsTab
     bonus_entries.push(Gtk::Entry.new())
     bonus_entries.push(Gtk::Entry.new())
     
-    bonus_entries.each { |entry| 
+    bonus_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
       entry.editable = false 
       entry.width_chars = 3
+      entry.text = total_entries[index].text.bonus
     }
+    
+    (1..6).each do |x|
+      spin_entries[x].signal_connect("changed") {@process.set_base_stat(x-1,spin_entries[x].value)}
+      
+      spin_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
+      race_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
+      misc_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
+      
+      total_entries[x].signal_connect("changed") {
+        total_entries[x].text = (spin_entries[x].value + race_entries[x].text.to_i + misc_entries[x].text.to_i).to_i.to_s
+      }
+      total_entries[x].signal_connect("changed") {bonus_entries[x].signal_emit("changed")}
+      
+      bonus_entries[x].signal_connect("changed") {bonus_entries[x].text = total_entries[x].text.bonus}
+    end
     
     labels.each_with_index { |entry, index| stats_box.attach(entry, 0, 1, index, index+1,        0, 0, 5, 0) }
     spin_entries.each_with_index { |entry, index| stats_box.attach(entry, 1, 2, index, index+1,  0, 0, 5, 0) }
@@ -154,7 +179,7 @@ class RaceStatsTab
     misc_entries.each_with_index { |entry, index| stats_box.attach(entry, 3, 4, index, index+1,  0, 0, 5, 0) }
     total_entries.each_with_index { |entry, index| stats_box.attach(entry, 4, 5, index, index+1, 0, 0, 5, 0) }
     bonus_entries.each_with_index { |entry, index| stats_box.attach(entry, 5, 6, index, index+1, 0, 0, 5, 0) }
-    
+    stats_box.focus_chain = spin_entries[1..6]
   end
 
 end

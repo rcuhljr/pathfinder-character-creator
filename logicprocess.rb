@@ -32,6 +32,27 @@ class LogicProcess
     @char = @dm.load(filename)
   end
   
+  # Set the name field on the character object
+  
+  def set_name(name)
+    @char.name = name
+  end
+  
+  def set_player(player)
+    @char.player = player
+  end
+  
+  def set_alignment(alignment)
+    @char.alignment = alignment
+  end
+  
+  def set_base_stat(index, value)
+    @char.base_attribute_scores[index] = value
+  end
+  
+  def set_gender(gender)
+    @char.gender = gender
+  end
   # Returns an array of alignments
   
   def get_alignments
