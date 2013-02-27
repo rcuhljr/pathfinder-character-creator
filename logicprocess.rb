@@ -1,4 +1,5 @@
 load 'character.rb'
+load 'campaign.rb'
 
 # Contains the main set of business logic
 
@@ -9,6 +10,10 @@ class LogicProcess
     @dm = DataManager.new(@log)
     @unsaved_changes = false
     new_character
+    new_campaign
+    
+    #TODO is there a better way to do this? should it be a database issue?
+    @point_buy_costs = {7 => -4, 8 => -2, 9 => -1, 10 => 0, 11 => 1, 12 => 2, 13 => 3, 14 => 5, 15 => 7, 16 => 10, 17 => 13, 18 => 17}
   end
   
   def unsaved_changes?
@@ -21,6 +26,14 @@ class LogicProcess
 
   def get_character
     return @char
+  end
+  
+  def new_campaign
+    @camp = Campaign.new    
+  end
+
+  def get_campaign
+    return @camp
   end
   
   def save_character(filename)
@@ -48,6 +61,29 @@ class LogicProcess
   
   def set_base_stat(index, value)
     @char.base_attribute_scores[index] = value
+  end
+  
+  def set_misc_stat(index, value)
+    @char.misc_attribute_scores[index] = value
+  end
+  
+  def set_race_stat(index, value)
+    @char.race_attribute_scores[index] = value
+  end
+  
+  def get_stat_total(index)
+    @char.base_attribute_scores[index].to_i + @char.misc_attribute_scores[index].to_i + @char.race_attribute_scores[index].to_i
+  end
+  
+  def get_stat_pointbuy()
+    scores = @char.base_attribute_scores;
+    pointbuy = 0;
+    scores.each do |x|
+      val = @point_buy_costs[x.to_i]
+      return "**" if val.nil?
+      pointbuy += val
+    end
+    return pointbuy
   end
   
   def set_gender(gender)

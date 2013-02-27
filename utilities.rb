@@ -9,3 +9,10 @@ class String
     return "+" + val.to_s
   end
 end
+
+class Fixnum
+  def is_i?
+      self.to_i == self
+  end
+  
+end

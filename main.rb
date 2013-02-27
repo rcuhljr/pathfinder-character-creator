@@ -43,17 +43,22 @@ class Main
   
   # Creates and adds the menubar to the main window.
   
-  def setup_menus
+  def setup_menus        
     menubar = Gtk::MenuBar.new
-    file = Gtk::MenuItem.new("File")
-    
-    filemenu = Gtk::Menu.new
-    
-    file.submenu = filemenu
-    
-    menubar.append(file)   
-    
     group = Gtk::AccelGroup.new
+    
+    menubar.append(setup_character_menu(group))   
+    menubar.append(setup_campaign_menu(group))
+    
+    @window.add_accel_group(group)
+    return menubar
+  end
+  
+  def setup_character_menu(group)
+        
+    character = Gtk::MenuItem.new("Character")    
+    charmenu = Gtk::Menu.new        
+    character.submenu = charmenu
     
     newchar = Gtk::ImageMenuItem.new(Gtk::Stock::NEW, group)
     openchar = Gtk::ImageMenuItem.new(Gtk::Stock::OPEN, group)
@@ -63,13 +68,41 @@ class Main
     openchar.signal_connect('activate') { open_character }    
     savechar.signal_connect('activate') { save_character }  
     
-    filemenu.append(newchar)
-    filemenu.append(openchar)
-    filemenu.append(savechar)
+    charmenu.append(newchar)
+    charmenu.append(openchar)
+    charmenu.append(savechar)
     
-    @window.add_accel_group(group)
+    return character
+  end
+  
+  def setup_campaign_menu(group)
+        
+    campaign = Gtk::MenuItem.new("Campaign")    
+    campmenu = Gtk::Menu.new        
+    campaign.submenu = campmenu
     
-    return menubar
+    newcamp = Gtk::MenuItem.new("New Campaign", group)    
+    opencamp = Gtk::MenuItem.new("Open Campaign", group)
+    savecamp = Gtk::MenuItem.new("Save Campaign", group)
+    editcamp = Gtk::MenuItem.new("Edit Campaign", group)
+        
+    newcamp.add_accelerator('activate', group, Gdk::Keyval::GDK_N, Gdk::Window::MOD1_MASK, Gtk::ACCEL_VISIBLE)
+    opencamp.add_accelerator('activate', group, Gdk::Keyval::GDK_O, Gdk::Window::MOD1_MASK, Gtk::ACCEL_VISIBLE)
+    savecamp.add_accelerator('activate', group, Gdk::Keyval::GDK_S, Gdk::Window::MOD1_MASK, Gtk::ACCEL_VISIBLE)
+    editcamp.add_accelerator('activate', group, Gdk::Keyval::GDK_E, Gdk::Window::MOD1_MASK, Gtk::ACCEL_VISIBLE)
+    
+    newcamp.signal_connect('activate') { new_campaign }
+    opencamp.signal_connect('activate') { open_campaign }    
+    savecamp.signal_connect('activate') { save_campaign }  
+    editcamp.signal_connect('activate') { edit_campaign }  
+    
+    campmenu.append(newcamp)
+    campmenu.append(opencamp)
+    campmenu.append(savecamp)
+    campmenu.append(editcamp)
+    
+    return campaign
+
   end
   
   # Removes the existing character view and builds a new one from the data provided by the process object.  
@@ -132,8 +165,8 @@ class Main
       nil, 
       [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
       [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
-    
-    dialog.set_current_name(char.name.delete(" ")+".pcf")
+    charname = char.name.nil? ? "character" : char.name
+    dialog.set_current_name(charname.delete(" ")+".pcf")
     dialog.set_filter(@char_file_filter)
     if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
       @process.save_character(dialog.filename)

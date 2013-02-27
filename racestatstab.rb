@@ -138,7 +138,7 @@ class RaceStatsTab
       next unless entry.is_a? Gtk::Entry
       entry.editable = false 
       entry.width_chars = 3
-      entry.text = (spin_entries[index].value + race_entries[index].text.to_i + misc_entries[index].text.to_i).to_i.to_s
+      entry.text = (base_stats[index-1].to_i + race_stats[index-1].to_i + misc_stats[index].to_i).to_s
     }
     
     
@@ -158,15 +158,34 @@ class RaceStatsTab
       entry.text = total_entries[index].text.bonus
     }
     
+    pbuy = @process.get_campaign.pointbuy
+    pointbuy_counter = labels[0]
+    pointbuy_counter.width_chars = 6
+    
+    if pbuy.is_i?
+      set_point_buy_label(pointbuy_counter, pbuy, @process.get_stat_pointbuy)
+    end    
+
     (1..6).each do |x|
       spin_entries[x].signal_connect("changed") {@process.set_base_stat(x-1,spin_entries[x].value)}
+      spin_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}      
+      spin_entries[x].signal_connect("changed") {
+      if @process.get_campaign.pointbuy.is_i?
+        set_point_buy_label(pointbuy_counter, @process.get_campaign.pointbuy, @process.get_stat_pointbuy)        
+      else
+        pointbuy_counter.text = ""
+      end
+      }
       
-      spin_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
+      race_entries[x].signal_connect("changed") {@process.set_race_stat(x-1, race_entries[x].text)}
       race_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
+      
+      misc_entries[x].signal_connect("changed") {@process.set_misc_stat(x-1, misc_entries[x].text)}
       misc_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
       
       total_entries[x].signal_connect("changed") {
-        total_entries[x].text = (spin_entries[x].value + race_entries[x].text.to_i + misc_entries[x].text.to_i).to_i.to_s
+        
+        total_entries[x].text = @process.get_stat_total(x-1).to_s
       }
       total_entries[x].signal_connect("changed") {bonus_entries[x].signal_emit("changed")}
       
@@ -180,6 +199,18 @@ class RaceStatsTab
     total_entries.each_with_index { |entry, index| stats_box.attach(entry, 4, 5, index, index+1, 0, 0, 5, 0) }
     bonus_entries.each_with_index { |entry, index| stats_box.attach(entry, 5, 6, index, index+1, 0, 0, 5, 0) }
     stats_box.focus_chain = spin_entries[1..6]
+  end
+  
+  def set_point_buy_label (pointbuy_counter, pointbuy_limit, pointbuy_val)    
+    color = "blue"
+    if pointbuy_val == "**"
+      color = "pink"
+    elsif pointbuy_val == pointbuy_limit
+      color = "green"
+    elsif pointbuy_val > pointbuy_limit
+      color = "red"
+    end          
+    pointbuy_counter.set_markup("<span foreground=\"#{color}\">#{pointbuy_val.to_s}/#{pointbuy_limit.to_s}</span>")
   end
 
 end
