@@ -1,5 +1,4 @@
-load 'character.rb'
-load 'campaign.rb'
+require 'ostruct'
 
 # Contains the main set of business logic
 
@@ -16,12 +15,33 @@ class LogicProcess
     @point_buy_costs = {7 => -4, 8 => -2, 9 => -1, 10 => 0, 11 => 1, 12 => 2, 13 => 3, 14 => 5, 15 => 7, 16 => 10, 17 => 13, 18 => 17}
   end
   
+  def unsaved_campaign_changes
+    #unchanged campaign
+    return false if create_character == @char
+    #campaign that has never been saved
+    return true if @char.file_name.nil?
+    #campaign identical to saved version
+    return @char == @dm.load(@char.file_name)
+  end
+  
   def unsaved_changes?
-    return @unsaved_changes
+    #unchanged character
+    return false if create_character == @char
+    #character that has never been saved
+    return true if @char.file_name.nil?
+    #character identical to saved version
+    return @char == @dm.load(@char.file_name)    
   end
   
   def new_character
-    @char = Character.new    
+    @char = create_character
+  end
+  
+  def create_character
+    OpenStruct.new(
+      :base_attribute_scores => Array.new(6, 10), 
+      :race_attribute_scores => Array.new(6, 0),
+      :misc_attribute_scores => Array.new(6, 0))
   end
 
   def get_character
@@ -29,7 +49,13 @@ class LogicProcess
   end
   
   def new_campaign
-    @camp = Campaign.new    
+    @camp = create_campaign
+  end
+  
+  def create_campaign
+    OpenStruct.new(
+      :name => 'Default Campaign',
+      :pointbuy => 15)
   end
 
   def get_campaign
@@ -38,11 +64,24 @@ class LogicProcess
   
   def save_character(filename)
     @log.debug { "dumped #{@char.name} of alignment #{@char.alignment}" }
+    @char.file_name = filename
     @dm.save(filename, @char)
   end
   
   def open_character(filename)
     @char = @dm.load(filename)
+  end
+  
+  #Save the current campaign to filename
+  
+  def save_campaign(filename)
+    @log.debug { "dumped #{@char.name} of alignment #{@char.alignment}" }
+    @camp.file_name = filename
+    @dm.save(filename, @camp)
+  end
+  
+  def open_campaign(filename)
+    @camp = @dm.load(filename)
   end
   
   # Set the name field on the character object

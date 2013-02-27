@@ -29,6 +29,10 @@ class Main
     
     @char_file_filter = Gtk::FileFilter.new
     @char_file_filter.add_pattern("*.pcf")
+    
+    @camp_file_filter = Gtk::FileFilter.new
+    @camp_file_filter.add_pattern("*.pcs")
+    
     @race_stats_tab = RaceStatsTab.new(@log, @process)
     
     content = Gtk::VBox.new(homogeneous = false, spacing = nil)
@@ -105,6 +109,11 @@ class Main
 
   end
   
+  def edit_campaign
+	@log.Debug {"Edit Campaign"}
+  
+  end
+  
   # Removes the existing character view and builds a new one from the data provided by the process object.  
   #--
   # Might need to split this into a create_view and reset_view methodolgy based on how slow wiping out and recreating it proves to be.
@@ -132,15 +141,58 @@ class Main
   def new_character    
     @log.debug ("new_character")
     if @process.unsaved_changes? then
-        save_prompt
+        prompt_save_character
     end
     @process.new_character
     reset_view 
   end
   
+  def new_campaign
+    @log.Debug {"new_campaign"}
+    if @process.unsaved_campaign_changes? then
+      prompt_save_campaign
+    end
+    @process.new_campaign
+    reset_view 
+  end
+  
+  def prompt_save_character
+    dialog = Gtk::MessageDialog.new(
+      @window,
+      Gtk::Dialog::MODAL,
+      Gtk::MessageDialog::QUESTION,
+      Gtk::MessageDialog::BUTTONS_YES_NO,
+      "Unsaved Changes!"
+    )
+    dialog.secondary_text = "Would you like to save this character?"
+    if dialog.run == Gtk::Dialog::RESPONSE_YES
+      save_character
+    end
+    dialog.destroy
+  end
+  
+  def prompt_save_campaign
+    dialog = Gtk::MessageDialog.new(
+      @window,
+      Gtk::Dialog::MODAL,
+      Gtk::MessageDialog::QUESTION,
+      Gtk::MessageDialog::BUTTONS_YES_NO,
+      "Unsaved Changes!"
+    )
+    dialog.secondary_text = "Would you like to save this Campaign?"
+    if dialog.run == Gtk::Dialog::RESPONSE_YES
+      save_campaign
+    end
+    dialog.destroy
+  end
+  
   def open_character
-    #todo check for saving current character, load in data file.
     @log.debug ( "open_character"  )
+    
+    if @process.unsaved_changes? then
+        prompt_save_character
+    end
+    
     dialog = Gtk::FileChooserDialog.new("Open Character",
       @window, 
       Gtk::FileChooser::ACTION_OPEN, 
@@ -156,6 +208,27 @@ class Main
     dialog.destroy    
   end
   
+  def open_campaign
+    @log.Debug {"Open Campaign"}
+    
+    if @process.unsaved_campaign_changes? then
+      prompt_save_campaign
+    end
+    dialog = Gtk::FileChooserDialog.new("Open Campaign",
+      @window, 
+      Gtk::FileChooser::ACTION_OPEN, 
+      nil, 
+      [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
+      [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
+        
+    dialog.set_filter(@camp_file_filter)
+    if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
+      @process.open_campaign(dialog.filename)            
+      reset_view
+    end
+    dialog.destroy    
+  end
+  
   def save_character
     @log.debug { "Saving character"}        
     char = @process.get_character
@@ -165,8 +238,12 @@ class Main
       nil, 
       [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
       [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
-    charname = char.name.nil? ? "character" : char.name
-    dialog.set_current_name(charname.delete(" ")+".pcf")
+    if char.file_name.nil?
+      charname = char.name.nil? ? "character" : char.name
+      dialog.set_current_name(charname.delete(" ")+".pcf")
+    else
+      dialog.set_current_name(char.file_name)
+    end
     dialog.set_filter(@char_file_filter)
     if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
       @process.save_character(dialog.filename)
@@ -174,8 +251,28 @@ class Main
     dialog.destroy
   end
   
-  def save_prompt
-    #ask to save current character.
+    
+  def save_campaign
+    @log.Debug {"Save Campaign"}
+    camp = @process.get_campaign
+    dialog = Gtk::FileChooserDialog.new("Save Campaign",
+      @window, 
+      Gtk::FileChooser::ACTION_SAVE, 
+      nil, 
+      [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
+      [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
+    if camp.file_name.nil?
+      charname = camp.name.nil? ? "campaign" : camp.name
+      dialog.set_current_name(charname.delete(" ")+".pcs")
+    else
+      dialog.set_current_name(camp.file_name)
+    end
+    dialog.set_filter(@camp_file_filter)
+    if dialog.run == Gtk::Dialog::RESPONSE_ACCEPT
+      @process.save_campaign(dialog.filename)
+    end
+    dialog.destroy	
   end
+
 end
 
