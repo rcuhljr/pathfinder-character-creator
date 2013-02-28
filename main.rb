@@ -7,6 +7,7 @@ require 'logger'
 load 'datamanager.rb'
 load 'logicprocess.rb'
 load 'racestatstab.rb'
+load 'campaigneditor.rb'
 
 # Main GUI for the program, contains all of our UI code.
 
@@ -34,6 +35,7 @@ class Main
     @camp_file_filter.add_pattern("*.pcs")
     
     @race_stats_tab = RaceStatsTab.new(@log, @process)
+    @campaign_editor = CampaignEditor.new(@log, @process)
     
     content = Gtk::VBox.new(homogeneous = false, spacing = nil)
     @main_content = Gtk::VBox.new(homogeneous = false, spacing = nil)
@@ -43,6 +45,25 @@ class Main
     @window.show_all
     
     Gtk.main
+  end
+  
+  def create_campaign_window
+    @log.debug("Create Campaign Window")
+    if not @campaign_window.nil?
+      return
+    end    
+    @campaign_window = Gtk::Window.new("Pathfinder Campaign Settings")
+    @campaign_window.set_default_size(800, 600)    
+    @campaign_window.signal_connect("destroy") {
+      @log.info "destroy campaign event occurred"      
+    }
+    
+    @window.add(@campaign_editor.build_campaign_editor)
+    
+    
+    @campaign_window.show_all
+    @campaign_window.keep_above = true
+    
   end
   
   # Creates and adds the menubar to the main window.
@@ -110,8 +131,8 @@ class Main
   end
   
   def edit_campaign
-	@log.Debug {"Edit Campaign"}
-  
+    @log.debug {"Edit Campaign"}
+    create_campaign_window
   end
   
   # Removes the existing character view and builds a new one from the data provided by the process object.  
@@ -148,7 +169,7 @@ class Main
   end
   
   def new_campaign
-    @log.Debug {"new_campaign"}
+    @log.debug {"new_campaign"}
     if @process.unsaved_campaign_changes? then
       prompt_save_campaign
     end
@@ -209,7 +230,7 @@ class Main
   end
   
   def open_campaign
-    @log.Debug {"Open Campaign"}
+    @log.debug {"Open Campaign"}
     
     if @process.unsaved_campaign_changes? then
       prompt_save_campaign
@@ -253,7 +274,7 @@ class Main
   
     
   def save_campaign
-    @log.Debug {"Save Campaign"}
+    @log.debug {"Save Campaign"}
     camp = @process.get_campaign
     dialog = Gtk::FileChooserDialog.new("Save Campaign",
       @window, 

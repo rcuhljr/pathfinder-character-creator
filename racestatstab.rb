@@ -8,7 +8,8 @@ class RaceStatsTab
 
 # build the race and stats tab
   
-  def build_race_stats(tab_holder, char)
+  def build_race_stats(tab_holder)
+    char = @process.get_character
     tab_label = Gtk::Label.new("Race & Stats")    
     
     race_stats_box = Gtk::VBox.new(homogeneous = false, spacing = nil)
