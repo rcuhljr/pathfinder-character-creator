@@ -203,6 +203,7 @@ class RaceStatsTab
   end
   
   def set_point_buy_label (pointbuy_counter, pointbuy_limit, pointbuy_val)    
+    pointbuy_limit = pointbuy_limit.to_i
     color = "blue"
     if pointbuy_val == "**"
       color = "pink"

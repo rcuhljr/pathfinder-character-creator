@@ -58,7 +58,7 @@ class Main
       @log.info "destroy campaign event occurred"      
     }
     
-    @window.add(@campaign_editor.build_campaign_editor)
+    @campaign_window.add(@campaign_editor.build_campaign_editor)
     
     
     @campaign_window.show_all
@@ -141,14 +141,13 @@ class Main
   #++
   
   def reset_view
-    @log.debug ("reset_view")
-    char = @process.get_character
+    @log.debug ("reset_view")    
     
     @main_content.each { |child| child.destroy}
     
     tab_holder = Gtk::Notebook.new
     
-    @race_stats_tab.build_race_stats(tab_holder, char)
+    @race_stats_tab.build_race_stats(tab_holder)
     
     tab_holder.append_page(Gtk::Label.new("Lorem Ipsum"), Gtk::Label.new("Other"))
     

@@ -84,6 +84,14 @@ class LogicProcess
     @camp = @dm.load(filename)
   end
   
+  def set_camp_name(name)
+    @camp.name = name
+  end
+  
+  def set_pointbuy(pbuy)
+    @camp.pointbuy = pbuy
+  end
+  
   # Set the name field on the character object
   
   def set_name(name)
@@ -140,7 +148,7 @@ class LogicProcess
   
   def get_pointbuys
     pointbuys = []
-    @dc.get_pointbuys.each {|pointbuy| pointbuys.push(alignment[0]) }    
+    @dc.get_pointbuys.each {|pointbuy| pointbuys.push(pointbuy[0]) }    
     return pointbuys
   end
   
