@@ -1,5 +1,5 @@
 class String
-  def is_i?
+  def integer?
     self.to_i.to_s == self
   end
     
@@ -12,7 +12,6 @@ end
 
 class Fixnum
   def is_i?
-      self.to_i == self
-  end
-  
+      return true
+  end  
 end

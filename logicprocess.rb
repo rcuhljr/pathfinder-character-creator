@@ -1,21 +1,22 @@
 require 'ostruct'
-
+require_relative 'datacontainer.rb'
+require_relative 'datamanager.rb'
 # Contains the main set of business logic
 
-class LogicProcess
-  def initialize(logger)
-    @log = logger
-    @dc = DataContainer.new(@log)
-    @dm = DataManager.new(@log)
+class LogicProcess  
+  def initialize(logger, data_sources = {})
+    @log = logger    
+    @dc = data_sources[:dc] ||= DataContainer.new(@log)
+    @dm = data_sources[:dm] ||= DataManager.new(@log)
     @unsaved_changes = false
     new_character
     new_campaign
     
     #TODO is there a better way to do this? should it be a database issue?
-    @point_buy_costs = {7 => -4, 8 => -2, 9 => -1, 10 => 0, 11 => 1, 12 => 2, 13 => 3, 14 => 5, 15 => 7, 16 => 10, 17 => 13, 18 => 17}
+    @@point_buy_costs = {7 => -4, 8 => -2, 9 => -1, 10 => 0, 11 => 1, 12 => 2, 13 => 3, 14 => 5, 15 => 7, 16 => 10, 17 => 13, 18 => 17}
   end
   
-  def unsaved_campaign_changes?
+  def has_unsaved_campaign_changes?
     @log.debug {"unsaved_camp_changes"}
     #unchanged campaign
     return false if create_campaign == @camp
@@ -26,7 +27,7 @@ class LogicProcess
     return @camp != @dm.load(@camp.file_name)
   end
   
-  def unsaved_changes?
+  def has_unsaved_changes?
     @log.debug {"unsaved_changes"}
     #unchanged character
     return false if create_character == @char
