@@ -1,3 +1,4 @@
 *.db
 *.pcf
+*.pcs
 doc/*

@@ -55,7 +55,9 @@ class Main
     @campaign_window = Gtk::Window.new("Pathfinder Campaign Settings")
     @campaign_window.set_default_size(800, 600)    
     @campaign_window.signal_connect("destroy") {
-      @log.info "destroy campaign event occurred"      
+      @log.info "destroy campaign event occurred"   
+      @campaign_window = nil
+      reset_view
     }
     
     @campaign_window.add(@campaign_editor.build_campaign_editor)
@@ -282,8 +284,8 @@ class Main
       [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
       [Gtk::Stock::SAVE, Gtk::Dialog::RESPONSE_ACCEPT])
     if camp.file_name.nil?
-      charname = camp.name.nil? ? "campaign" : camp.name
-      dialog.set_current_name(charname.delete(" ")+".pcs")
+      campname = camp.name.nil? ? "campaign" : camp.name
+      dialog.set_current_name(campname.delete(" ")+".pcs")
     else
       dialog.set_current_name(camp.file_name)
     end

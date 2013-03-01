@@ -15,22 +15,25 @@ class LogicProcess
     @point_buy_costs = {7 => -4, 8 => -2, 9 => -1, 10 => 0, 11 => 1, 12 => 2, 13 => 3, 14 => 5, 15 => 7, 16 => 10, 17 => 13, 18 => 17}
   end
   
-  def unsaved_campaign_changes
+  def unsaved_campaign_changes?
+    @log.debug {"unsaved_camp_changes"}
     #unchanged campaign
-    return false if create_character == @char
+    return false if create_campaign == @camp
     #campaign that has never been saved
-    return true if @char.file_name.nil?
+    return true if @camp.file_name.nil?
     #campaign identical to saved version
-    return @char == @dm.load(@char.file_name)
+    
+    return @camp != @dm.load(@camp.file_name)
   end
   
   def unsaved_changes?
+    @log.debug {"unsaved_changes"}
     #unchanged character
     return false if create_character == @char
     #character that has never been saved
     return true if @char.file_name.nil?
     #character identical to saved version
-    return @char == @dm.load(@char.file_name)    
+    return @char != @dm.load(@char.file_name)    
   end
   
   def new_character
@@ -53,8 +56,7 @@ class LogicProcess
   end
   
   def create_campaign
-    OpenStruct.new(
-      :name => 'Default Campaign',
+    OpenStruct.new(     
       :pointbuy => 15)
   end
 
@@ -65,7 +67,7 @@ class LogicProcess
   def save_character(filename)
     @log.debug { "dumped #{@char.name} of alignment #{@char.alignment}" }
     @char.file_name = filename
-    @dm.save(filename, @char)
+    @dm.save_character(filename, @char)
   end
   
   def open_character(filename)
@@ -77,7 +79,7 @@ class LogicProcess
   def save_campaign(filename)
     @log.debug { "dumped #{@char.name} of alignment #{@char.alignment}" }
     @camp.file_name = filename
-    @dm.save(filename, @camp)
+    @dm.save_campaign(filename, @camp)
   end
   
   def open_campaign(filename)
