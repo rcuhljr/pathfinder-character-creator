@@ -22,8 +22,7 @@ class LogicProcess
     return false if create_campaign == @camp
     #campaign that has never been saved
     return true if @camp.file_name.nil?
-    #campaign identical to saved version
-    
+    #campaign identical to saved version    
     return @camp != @dm.load(@camp.file_name)
   end
   
@@ -38,7 +37,7 @@ class LogicProcess
   end
   
   def new_character
-    @char = create_character
+    @char = create_character    
   end
   
   def create_character
@@ -78,7 +77,7 @@ class LogicProcess
   #Save the current campaign to filename
   
   def save_campaign(filename)
-    @log.debug { "dumped #{@char.name} of alignment #{@char.alignment}" }
+    @log.debug { "dumped #{@camp.name} " }
     @camp.file_name = filename
     @dm.save_campaign(filename, @camp)
   end
@@ -129,8 +128,8 @@ class LogicProcess
     scores = @char.base_attribute_scores;
     pointbuy = 0;
     scores.each do |x|
-      val = @point_buy_costs[x.to_i]
-      return "**" if val.nil?
+      val = @@point_buy_costs[x.to_i]
+      return nil if val.nil?
       pointbuy += val
     end
     return pointbuy

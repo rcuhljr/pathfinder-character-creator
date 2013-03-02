@@ -16,7 +16,7 @@ class CampaignEditor
   end  
   
   def build_header_row
-    header_row = Gtk::VBox.new(homogeneous = false, spacing = nil)
+    header_row = Gtk::HBox.new(homogeneous = false, spacing = nil)
     
     name_label = Gtk::Label.new("Campaign Name:")
     name_entry = Gtk::Entry.new()

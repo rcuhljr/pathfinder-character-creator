@@ -162,7 +162,7 @@ class Main
   
   def new_character    
     @log.debug ("new_character")
-    if @process.unsaved_changes? then
+    if @process.has_unsaved_changes? then
         prompt_save_character
     end
     @process.new_character
@@ -171,7 +171,7 @@ class Main
   
   def new_campaign
     @log.debug {"new_campaign"}
-    if @process.unsaved_campaign_changes? then
+    if @process.has_unsaved_campaign_changes? then
       prompt_save_campaign
     end
     @process.new_campaign
@@ -211,7 +211,7 @@ class Main
   def open_character
     @log.debug ( "open_character"  )
     
-    if @process.unsaved_changes? then
+    if @process.has_unsaved_changes? then
         prompt_save_character
     end
     
@@ -233,7 +233,7 @@ class Main
   def open_campaign
     @log.debug {"Open Campaign"}
     
-    if @process.unsaved_campaign_changes? then
+    if @process.has_unsaved_campaign_changes? then
       prompt_save_campaign
     end
     dialog = Gtk::FileChooserDialog.new("Open Campaign",
