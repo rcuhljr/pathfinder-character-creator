@@ -46,7 +46,7 @@ class RaceStatsTab
     
     alignment_label = Gtk::Label.new("Alignment:")
     alignment_entry = Gtk::ComboBox.new(is_text_only = true)   
-    @process.get_alignments.each_with_index do |align_text, index|
+    @process.get_alignments.each_with_index do |align_text, index|      
       alignment_entry.append_text(align_text)
       alignment_entry.set_active(index) if align_text == @char.alignment
     end
@@ -111,12 +111,17 @@ class RaceStatsTab
     race_entries.push(Gtk::Entry.new())
     race_entries.push(Gtk::Entry.new())
     
+    @races = []
+    
     race_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
+      @races << entry
       entry.editable = false
       entry.width_chars = 3
       entry.text = race_stats[index-1].to_s
     }
+    
+    @misc = []
 
     misc_entries = []
     misc_entries.push(Gtk::Label.new("Misc"))
@@ -129,6 +134,7 @@ class RaceStatsTab
     
     misc_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
+      @misc << entry
       entry.editable = false 
       entry.width_chars = 3
       entry.text = misc_stats[index-1].to_s
@@ -143,8 +149,11 @@ class RaceStatsTab
     total_entries.push(Gtk::Entry.new())
     total_entries.push(Gtk::Entry.new())
     
+    @totals = []
+    
     total_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
+      @totals << entry
       entry.editable = false 
       entry.width_chars = 3
       entry.text = (base_stats[index-1].to_i + race_stats[index-1].to_i + misc_stats[index].to_i).to_s
@@ -186,7 +195,7 @@ class RaceStatsTab
       end
       }
       
-      race_entries[x].signal_connect("changed") {@process.set_race_stat(x-1, race_entries[x].text)}
+      race_entries[x].signal_connect("changed") {race_entries[x].text = @process.get_race_stat(x-1).to_s}
       race_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
       
       misc_entries[x].signal_connect("changed") {@process.set_misc_stat(x-1, misc_entries[x].text)}
@@ -225,7 +234,25 @@ class RaceStatsTab
   end
   
   def build_race_box(race_box)  
-    race_box.pack_start(Gtk::Label.new("test"), false, false, 2)    
+    race_row = Gtk::HBox.new(homogenous =false, spacing = nil)    
+    
+    race_label = Gtk::Label.new("Race:")
+    race_entry = Gtk::ComboBox.new(is_text_only = true)   
+    @process.get_races.each_with_index do |race_text, index|
+      race_entry.append_text(race_text)
+      race_entry.set_active(index) if race_text == @char.race
+    end
+    
+    race_entry.signal_connect("changed") { |e| @process.set_race_stats(e.active_text)}
+    race_entry.signal_connect("changed") { update_race_stats }
+    
+    race_row.pack_start(race_label, false, false, 2)
+    race_row.pack_start(race_entry, false, false, 2)
+    
+    race_box.pack_start(race_row, false, false, 2)
   end
-
+  
+  def update_race_stats
+    @races.each {|x| x.signal_emit("changed") }  
+  end
 end

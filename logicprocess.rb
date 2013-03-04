@@ -120,6 +120,16 @@ class LogicProcess
     @char.race_attribute_scores[index] = value
   end
   
+  def get_race_stat(index)
+    @char.race_attribute_scores[index]
+  end
+  
+  # update the race stats to selected race
+  
+  def set_race_stats(race)
+    @char.race_attribute_scores = @dc.get_race_stats[race]
+  end
+  
   def get_stat_total(index)
     @char.base_attribute_scores[index].to_i + @char.misc_attribute_scores[index].to_i + @char.race_attribute_scores[index].to_i
   end
@@ -160,6 +170,14 @@ class LogicProcess
     genders = []
     @dc.get_genders.each {|gender| genders.push(gender[0]) }    
     return genders
+  end
+  
+  # Returns an array of races
+  
+  def get_races
+    races = []
+    @dc.get_races.each {|race| races.push(race[0]) }    
+    return races
   end
   
 end

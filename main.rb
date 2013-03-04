@@ -8,6 +8,7 @@ load 'datamanager.rb'
 load 'logicprocess.rb'
 load 'racestatstab.rb'
 load 'campaigneditor.rb'
+load 'levelstab.rb'
 
 # Main GUI for the program, contains all of our UI code.
 
@@ -35,6 +36,7 @@ class Main
     @camp_file_filter.add_pattern("*.pcs")
     
     @race_stats_tab = RaceStatsTab.new(@log, @process)
+    @levels_tab = LevelsTab.new(@log, @process)
     @campaign_editor = CampaignEditor.new(@log, @process)
     
     content = Gtk::VBox.new(homogeneous = false, spacing = nil)
@@ -151,7 +153,7 @@ class Main
     
     @race_stats_tab.build_race_stats(tab_holder)
     
-    tab_holder.append_page(Gtk::Label.new("Lorem Ipsum"), Gtk::Label.new("Other"))
+    @levels_tab.build_levels(tab_holder)
     
     @main_content.pack_start(tab_holder, false, false, 0)
     

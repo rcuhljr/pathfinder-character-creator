@@ -179,3 +179,15 @@ describe LogicProcess, "#get_stat_pointbuy" do
     logic.get_stat_pointbuy().should be nil
   end
 end
+
+describe LogicProcess, "#set_race_stats" do
+  let(:logger) { double("Logger").as_null_object }
+  let(:dc) { double("DataContainer").as_null_object }  
+  let(:dm) {double("DataManager") }
+  it "updates the race stat array with appropriate values" do
+    logic = LogicProcess.new(logger, {:dm => dm, :dc=> dc})
+    dc.should_receive(:get_race_stats).once { {"Elf" => [0,2,-2,2,0,0]} }
+    logic.set_race_stats("Elf")    
+    logic.get_character.race_attribute_scores.should eq( [0,2,-2,2,0,0] )
+  end
+end

@@ -1,0 +1,61 @@
+--- #racialtraits
+tablequery: >
+    CREATE TABLE tblracialtraits
+    (
+    id int,
+    raceid int,
+    isdefault int,
+    name varchar(25),
+    description varchar(255),
+    effect varchar(255)
+    );
+    
+racialtraits:
+    - id:       1
+      raceid:   1
+      isdefault:  1
+      name: Bonus Feat
+      description: Humans select one extra feat at 1st level.
+      effect: 
+        - feat:   1
+          levels: 1
+    - id:       2
+      raceid:   1
+      isdefault:  1
+      name: Skills
+      description: Humans gain an additional skill rank at first level and one additional rank whenever they gain a level.
+      effect: 
+        - skill_rank:1
+          levels:1..20
+    - id:       3
+      raceid:   2
+      isdefault:  1
+      name: Elven Immunities
+      description: Elves are immune to magic sleep effects and gain a +2 racial saving throw bonus against enchantment spells and effects.
+      effect: 
+        - immunity: Magic Sleep
+        - effect_text: +2 saves vs enchantment
+    - id:       4
+      raceid:   2
+      isdefault:  1
+      name: Elven Magic
+      description: Elves receive a +2 racial bonus on caster level checks made to overcome spell resistance. In addition, elves receive a +2 racial bonus on Spellcraft skill checks made to identify the properties of magic items.
+      effect: 
+        - effect_text: +2 racial bonus on caster level vs SR
+        - skill_bonus: 2
+    - id:       5
+      raceid:   2
+      isdefault:  1
+      name: Weapon Familiarity
+      description: Elves are proficient with longbows including composite longbows, longswords, rapiers, and shortbows including composite shortbows, and treat any weapon with the word elven in its name as a martial.
+      effect: 
+        - proficiency:
+            - 1
+              2
+    - id:       6
+      raceid:   2
+      isdefault:  1
+      name: Low-Light Vision
+      description: Elves can see twice as far as humans in conditions of dim light.
+      effect: 
+        - effect_text: Low-Light Vision

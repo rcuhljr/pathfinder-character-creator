@@ -1,0 +1,34 @@
+--- #raceabilityscores
+tablequery: >
+    CREATE TABLE tblraceabilityscores
+    (
+    id int,
+    raceid int,
+    str int,
+    dex int,
+    con int,
+    int int,
+    wis int,
+    cha int,
+    optional int
+    );
+    
+raceabilityscores:
+    - id:       1
+      raceid:   1
+      str:      0
+      dex:      0
+      con:      0
+      int:      0
+      wis:      0
+      cha:      0
+      optional: 1     
+    - id:       2
+      raceid:   2
+      str:      0
+      dex:      2
+      con:      -2
+      int:      2
+      wis:      0
+      cha:      0
+      optional: 0

@@ -39,9 +39,18 @@ class DataContainer
     @db.execute(query)
     raw_table[table_name].each do |row|
       row_query = "INSERT INTO tbl#{table_name} (#{row.keys.join(",")}) VALUES (:#{row.keys.join(",:")})"
+      encode_arrays row
       @log.debug {"running: #{row_query}"}
       @db.execute(row_query, row)    
     end    
+  end
+  
+  def encode_arrays(row)
+    row.keys.each do |item|
+      if row[item].is_a? Array
+        row[item] = row[item].to_yaml
+      end
+    end
   end
   
   # Returns alignments [name, abbrev, id]
@@ -69,5 +78,25 @@ class DataContainer
       @genders = @db.execute( "Select name, abbrev, id from tblgenders" )
     end
     return @genders    
+  end
+  
+  # Returns races [name, id ]
+  
+  def get_races
+    if @races.nil?
+      @races = @db.execute( "Select name, id from tblraces" )
+    end
+    return @races
+  end
+  
+  def get_race_stats
+    if @race_stat_hash.nil?
+      race_stats = @db.execute ("Select name, str, dex, con, int, wis, cha, optional from tblraces r join tblraceabilityscores rsa on r.id = rsa.raceid")
+      @race_stat_hash = {}
+      race_stats.each do |race_row|
+        @race_stat_hash[race_row[0]] = race_row[1..-2]
+      end      
+    end
+    return @race_stat_hash
   end
 end

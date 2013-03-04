@@ -1,0 +1,19 @@
+--- #races
+tablequery: >
+    CREATE TABLE tblraces
+    (
+    id int,
+    name varchar(40),
+    size varchar(15),    
+    speed int    
+    );
+    
+races:
+    - name:     Human
+      id:       1
+      size:     Medium
+      speed:    30
+    - name:     Elf
+      id:       2
+      size:     Medium
+      speed:    30
