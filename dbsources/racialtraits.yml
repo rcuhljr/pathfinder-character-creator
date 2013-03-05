@@ -6,7 +6,7 @@ tablequery: >
     raceid int,
     isdefault int,
     name varchar(25),
-    description varchar(255),
+    description varchar(500),
     effect varchar(255)
     );
     
@@ -51,7 +51,7 @@ racialtraits:
       effect: 
         - proficiency:
             - 1
-              2
+            - 2
     - id:       6
       raceid:   2
       isdefault:  1
@@ -59,3 +59,30 @@ racialtraits:
       description: Elves can see twice as far as humans in conditions of dim light.
       effect: 
         - effect_text: Low-Light Vision
+    - id:        7
+      raceid:    1
+      isdefault: 0
+      name: Adoptive Parentage
+      description: >         
+        Choose one humanoid race without the human subtype. 
+        You start play with that race's languages and gain that race's weapon familiarity racial trait (if any). 
+        If the race does not have weapon familiarity, gain either Skill Focus or Weapon Focus as a bonus feat that is appropriate for that race instead. 
+        This racial trait replaces the bonus feat trait.
+      effect:
+        table: tblAdoptiveParentageOptions
+        replaces:
+            - Bonus Feat
+    - id:        8
+      raceid:    1
+      isdefault: 0
+      name: Dual Talent
+      description: >
+        Some humans are uniquely skilled at maximizing their natural gifts. 
+        These humans pick two ability scores and gain a +2 racial bonus in each of those scores. 
+        This racial trait replaces the +2 bonus to any one ability score, the bonus feat, and the 
+        skilled traits.
+      effect: 
+        optionals: 2                      
+        replaces:
+            - Bonus Feat
+            - Skilled

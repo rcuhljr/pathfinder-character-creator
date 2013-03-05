@@ -1,0 +1,19 @@
+--- #classes
+tablequery: >
+    CREATE TABLE tblclasses
+    (
+    id int,
+    name varchar(25),    
+    hitdie int,
+    skills int
+    );
+    
+classes:
+    - id: 1
+      name:   Fighter
+      hitdie: 10
+      skills: 2
+    - id: 2
+      name:   Rogue
+      hitdie: 8
+      skills: 8

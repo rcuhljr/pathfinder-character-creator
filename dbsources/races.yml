@@ -4,7 +4,9 @@ tablequery: >
     (
     id int,
     name varchar(40),
-    size varchar(15),    
+    size varchar(15),
+    type varchar(15),
+    subtype varchar(15),
     speed int    
     );
     
@@ -12,8 +14,12 @@ races:
     - name:     Human
       id:       1
       size:     Medium
+      type:     Humanoid
+      subtype:  Human
       speed:    30
     - name:     Elf
       id:       2
       size:     Medium
+      type:     Humanoid
+      subtype:  Elf
       speed:    30

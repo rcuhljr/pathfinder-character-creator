@@ -186,7 +186,7 @@ describe LogicProcess, "#set_race_stats" do
   let(:dm) {double("DataManager") }
   it "updates the race stat array with appropriate values" do
     logic = LogicProcess.new(logger, {:dm => dm, :dc=> dc})
-    dc.should_receive(:get_race_stats).once { {"Elf" => [0,2,-2,2,0,0]} }
+    dc.should_receive(:get_race_stats).once { {"Elf" => {stats_array:[0,2,-2,2,0,0], name:"Elf", optional:0}} }
     logic.set_race_stats("Elf")    
     logic.get_character.race_attribute_scores.should eq( [0,2,-2,2,0,0] )
   end

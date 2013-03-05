@@ -87,6 +87,24 @@ class DataContainer
     return @pointbuys    
   end
   
+  def get_attributes
+    if @attribute_hashes.nil?
+      @attribute_hashes = []
+      cols = nil
+      @db.execute2( "Select name, abbrev, id from tblattributes" ) do |row|
+        if cols.nil?
+          cols = row
+        else
+          hash = {}
+          cols.each_with_index { |item, index| hash[item] = row[index] }
+          @attribute_hashes << hash
+        end
+      end
+    end
+    @log.debug {"returning attribute info: #{@attribute_hashes}"}
+    return @attribute_hashes    
+  end
+  
   # Returns genders [name, abbrev, id]
   
   def get_genders
@@ -94,6 +112,19 @@ class DataContainer
       @genders = @db.execute( "Select name, abbrev, id from tblgenders" )
     end
     return @genders    
+  end
+  
+  # Returns class hash
+  
+  def get_classes
+    if @class_hash.nil?
+      classes = @db.execute ("Select name, hitdie, skills from tblclasses")
+      @class_hash = {}
+      classes.each do |class_row|
+        @class_hash[class_row[0]] = {name:class_row[0], hitdie:class_row[1], skills:class_row[2]}
+      end      
+    end
+    return @class_hash
   end
   
   # Returns races [name, id ]
@@ -105,12 +136,14 @@ class DataContainer
     return @races
   end
   
+  # returns a hash of race stat options keyed on race name.
+  
   def get_race_stats
     if @race_stat_hash.nil?
       race_stats = @db.execute ("Select name, str, dex, con, int, wis, cha, optional from tblraces r join tblraceabilityscores rsa on r.id = rsa.raceid")
       @race_stat_hash = {}
       race_stats.each do |race_row|
-        @race_stat_hash[race_row[0]] = race_row[1..-2]
+        @race_stat_hash[race_row[0]] = {name:race_row[0], stats_array:race_row[1..-2], optional:race_row.last }
       end      
     end
     return @race_stat_hash

@@ -251,6 +251,8 @@ class RaceStatsTab
   
   def build_race_box(race_box)  
     race_row = Gtk::HBox.new(homogenous =false, spacing = nil)    
+    @optional_stat_rows = Gtk::VBox.new(homogenous =false, spacing = nil)    
+    
     
     race_label = Gtk::Label.new("Race:")
     race_entry = Gtk::ComboBox.new(is_text_only = true)   
@@ -261,14 +263,48 @@ class RaceStatsTab
     
     race_entry.signal_connect("changed") { |e| @process.set_race_stats(e.active_text)}
     race_entry.signal_connect("changed") { update_race_stats }
+    race_entry.signal_connect("changed") { |e| setup_optional_stats(e.active_text) }
+    
+    if( not @char.race.nil?)
+      setup_optional_stats @char.race
+    end
     
     race_row.pack_start(race_label, false, false, 2)
     race_row.pack_start(race_entry, false, false, 2)
     
     race_box.pack_start(race_row, false, false, 2)
+    race_box.pack_start(@optional_stat_rows, false, false, 2)
   end
   
   def update_race_stats
     @races.each {|x| x.signal_emit("changed") }  
   end
+  
+  def setup_optional_stats (race)
+    @optional_stat_rows.each { |child| child.destroy}
+    choices = @process.get_race_optionals(race);
+    @log.debug {"stat choices for #{race} are #{choices}" }
+    return if choices.nil?
+    attribs = @process.get_attribute_names
+    choices.times do |x|
+      choice_row = Gtk::HBox.new(homogenous =false, spacing = nil)
+      stat_label = Gtk::Label.new("Stat Boost:")
+      stat_entry = Gtk::ComboBox.new(is_text_only = true)   
+      attribs.each_with_index do |stat_text, index|
+        stat_entry.append_text(stat_text)
+        if not @char.optionals.nil? and @char.optionals[x] == stat_text
+          stat_entry.set_active(index) 
+        end
+      end
+      choice_row.pack_start(stat_label, false, false, 0)
+      choice_row.pack_start(stat_entry, false, false, 0)
+      
+      stat_entry.signal_connect("changed") { |e| @process.set_optionals(e.active_text, x)}
+      stat_entry.signal_connect("changed") { update_race_stats }
+      
+      @optional_stat_rows.pack_start(choice_row, false, false, 0)
+    end
+    @optional_stat_rows.show_all
+  end
+  
 end

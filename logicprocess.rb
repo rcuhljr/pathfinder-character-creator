@@ -60,7 +60,10 @@ class LogicProcess
     OpenStruct.new(
       :base_attribute_scores => Array.new(6, 10), 
       :race_attribute_scores => Array.new(6, 0),
-      :misc_attribute_scores => Array.new(6, 0))
+      :misc_attribute_scores => Array.new(6, 0),
+      :levels => [],
+      :level_hp => [],
+      :optionals => [])
   end
 
   def get_character
@@ -136,6 +139,11 @@ class LogicProcess
     @char.race_attribute_scores[index] = value
   end
   
+  def set_race_stat_by_name(stat, value)
+    target = @dc.get_attributes.select { |x| x["name"] == stat } [0]
+    set_race_stat(target["id"]-1, value)
+  end
+  
   def get_race_stat(index)
     @char.race_attribute_scores[index]
   end
@@ -143,7 +151,26 @@ class LogicProcess
   # update the race stats to selected race
   
   def set_race_stats(race)
-    @char.race_attribute_scores = @dc.get_race_stats[race]
+    @char.race_attribute_scores = Array.new(@dc.get_race_stats[race][:stats_array])
+    @char.race = race
+    @char.optionals = []
+  end
+  
+  def get_race_optionals(race) 
+    @dc.get_race_stats[race][:optional]
+  end
+  
+  def set_optionals(stat, index)
+    @log.debug {"setting optional stat:#{stat} at index: #{index}"}    
+    @char.race_attribute_scores = Array.new(@dc.get_race_stats[@char.race][:stats_array])
+    
+    @char.optionals[index] = stat    
+    @char.optionals.each {|option| set_race_stat_by_name(stat, 2) }
+    @log.debug {"updated to optionals: #{@char.optionals}"}
+  end
+    
+  def get_attribute_names
+    @dc.get_attributes.map { |x| x["name"] }
   end
   
   def get_stat_total(index)
@@ -194,6 +221,10 @@ class LogicProcess
     races = []
     @dc.get_races.each {|race| races.push(race[0]) }    
     return races
+  end
+  
+  def get_class_names
+    @dc.get_classes.keys
   end
   
 end
