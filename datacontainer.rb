@@ -56,14 +56,14 @@ class DataContainer
     raw_table[table_name].each do |row|
       row_query = "INSERT INTO tbl#{table_name} (#{row.keys.join(",")}) VALUES (:#{row.keys.join(",:")})"
       encode_arrays row
-      @log.debug {"running: #{row_query}"}
+      @log.debug {"running: #{row_query} with \n #{row.inspect}"}
       @db.execute(row_query, row)    
     end    
   end
   
   def encode_arrays(row)
     row.keys.each do |item|
-      if row[item].is_a? Array
+      if row[item].is_a? Array or row[item].is_a? Hash
         row[item] = row[item].to_yaml
       end
     end

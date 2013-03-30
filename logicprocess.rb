@@ -173,6 +173,10 @@ class LogicProcess
     @dc.get_attributes.map { |x| x["name"] }
   end
   
+  def get_attribute_abbrevs
+    @dc.get_attributes.map { |x| x["abbrev"] }
+  end
+  
   def get_stat_total(index)
     @char.base_attribute_scores[index].to_i + @char.misc_attribute_scores[index].to_i + @char.race_attribute_scores[index].to_i
   end

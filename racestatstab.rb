@@ -91,18 +91,13 @@ class RaceStatsTab
   
   def build_stats_box(stats_box)
     
-    spin_entries = []
-    spin_entries.push(Gtk::Label.new("Score"))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))
-    
     base_stats = @char.base_attribute_scores
     race_stats = @char.race_attribute_scores
     misc_stats = @char.misc_attribute_scores
+    
+    spin_entries = []
+    spin_entries.push(Gtk::Label.new("Score"))
+    6.times {spin_entries.push(Gtk::SpinButton.new(3.0, 90.0, 1.0))}        
     
     spin_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::SpinButton
@@ -111,21 +106,12 @@ class RaceStatsTab
     
     labels = []
     labels.push(Gtk::Label.new(""))
-    labels.push(Gtk::Label.new("STR"))
-    labels.push(Gtk::Label.new("DEX"))
-    labels.push(Gtk::Label.new("CON"))
-    labels.push(Gtk::Label.new("INT"))
-    labels.push(Gtk::Label.new("WIS"))
-    labels.push(Gtk::Label.new("CHA"))
+    abbrevs = @process.get_attribute_abbrevs
+    6.times {|x| labels.push(Gtk::Label.new(abbrevs[x]))}            
     
     race_entries = []
     race_entries.push(Gtk::Label.new("Race"))
-    race_entries.push(Gtk::Entry.new())
-    race_entries.push(Gtk::Entry.new())
-    race_entries.push(Gtk::Entry.new())
-    race_entries.push(Gtk::Entry.new())
-    race_entries.push(Gtk::Entry.new())
-    race_entries.push(Gtk::Entry.new())
+    6.times {race_entries.push(Gtk::Entry.new())}    
     
     @races = []
     
@@ -141,12 +127,8 @@ class RaceStatsTab
 
     misc_entries = []
     misc_entries.push(Gtk::Label.new("Misc"))
-    misc_entries.push(Gtk::Entry.new())
-    misc_entries.push(Gtk::Entry.new())
-    misc_entries.push(Gtk::Entry.new())
-    misc_entries.push(Gtk::Entry.new())
-    misc_entries.push(Gtk::Entry.new())
-    misc_entries.push(Gtk::Entry.new())
+    6.times {misc_entries.push(Gtk::Entry.new())}
+    
     
     misc_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
@@ -158,12 +140,7 @@ class RaceStatsTab
     
     total_entries = []
     total_entries.push(Gtk::Label.new("Total"))
-    total_entries.push(Gtk::Entry.new())
-    total_entries.push(Gtk::Entry.new())
-    total_entries.push(Gtk::Entry.new())
-    total_entries.push(Gtk::Entry.new())
-    total_entries.push(Gtk::Entry.new())
-    total_entries.push(Gtk::Entry.new())
+    6.times {total_entries.push(Gtk::Entry.new())}
     
     @totals = []
     
@@ -178,12 +155,7 @@ class RaceStatsTab
     
     bonus_entries = []
     bonus_entries.push(Gtk::Label.new("Bonus"))
-    bonus_entries.push(Gtk::Entry.new())
-    bonus_entries.push(Gtk::Entry.new())
-    bonus_entries.push(Gtk::Entry.new())
-    bonus_entries.push(Gtk::Entry.new())
-    bonus_entries.push(Gtk::Entry.new())
-    bonus_entries.push(Gtk::Entry.new())
+    6.times {bonus_entries.push(Gtk::Entry.new())}
     
     bonus_entries.each_with_index { |entry, index| 
       next unless entry.is_a? Gtk::Entry
@@ -217,10 +189,7 @@ class RaceStatsTab
       misc_entries[x].signal_connect("changed") {@process.set_misc_stat(x-1, misc_entries[x].text)}
       misc_entries[x].signal_connect("changed") {total_entries[x].signal_emit("changed")}
       
-      total_entries[x].signal_connect("changed") {
-        
-        total_entries[x].text = @process.get_stat_total(x-1).to_s
-      }
+      total_entries[x].signal_connect("changed") {total_entries[x].text = @process.get_stat_total(x-1).to_s}
       total_entries[x].signal_connect("changed") {bonus_entries[x].signal_emit("changed")}
       
       bonus_entries[x].signal_connect("changed") {bonus_entries[x].text = total_entries[x].text.bonus}
