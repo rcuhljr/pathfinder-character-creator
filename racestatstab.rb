@@ -224,16 +224,45 @@ class RaceStatsTab
   end
   
   def build_alt_traits_row(trait_row)
-    store = @process.get_alt_race_trait_store()
-    listView = Gtk::TreeView.new(store)
-    listView.selection.mode = Gtk::SELECTION_SINGLE
+    trait_store = @process.get_race_trait_store()
+    race_list_view = Gtk::TreeView.new(trait_store)
+    race_list_view.selection.mode = Gtk::SELECTION_SINGLE
+
+    # Create a renderer
+    renderer = Gtk::CellRendererText.new
+    # Add column using our renderer
+    col = Gtk::TreeViewColumn.new("Racial Traits", renderer, :text => 0)
+    race_list_view.append_column(col)
+    
+    #scrolled_win = Gtk::ScrolledWindow.new
+    #scrolled_win.add(race_list_view)
+    #scrolled_win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+    #trait_row.pack_start(scrolled_win, false, false, 2)
+    trait_row.pack_start(race_list_view, false, false, 2)
+    
+    button_col = Gtk::VBox.new(homogenous =false, spacing = nil)
+    add_but = Gtk::Button.new("<<")
+    remove_but = Gtk::Button.new(">>")
+    
+    button_col.pack_start(add_but, false, false, 2)
+    button_col.pack_start(remove_but, false, false, 2)
+    trait_row.pack_start(button_col, false, false, 2)
+  
+    alt_trait_store = @process.get_alt_race_trait_store()
+    list_view = Gtk::TreeView.new(alt_trait_store)
+    list_view.selection.mode = Gtk::SELECTION_SINGLE
 
     # Create a renderer
     renderer = Gtk::CellRendererText.new
     # Add column using our renderer
     col = Gtk::TreeViewColumn.new("Alternate Traits", renderer, :text => 0)
-    listView.append_column(col)
-    trait_row.pack_start(listView, false, false, 2)
+    list_view.append_column(col)
+    
+    #scrolled_win = Gtk::ScrolledWindow.new
+    #scrolled_win.add(list_view)
+    #scrolled_win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
+    #trait_row.pack_start(scrolled_win, false, false, 2)
+    trait_row.pack_start(list_view, false, false, 2)
   end
   
   def build_race_box(race_box)  

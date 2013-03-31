@@ -167,4 +167,23 @@ class DataContainer
     end
     return @race_alt_traits[race_id]
   end
+  
+  def get_race_traits (race_id)
+    @race_traits = {} if @race_traits.nil?
+    if @race_traits[race_id].nil?
+      @log.debug {"Executing: Select name, description, effect, id from tblracialtraits where isdefault = 1 and raceid = '#{race_id}'"}
+      alt_traits = @db.execute ("Select name, description, effect, id from tblracialtraits where isdefault = 1 and raceid = '#{race_id}'")      
+      @race_traits[race_id] = {}    
+      alt_traits.each do |trait_row|
+        @log.debug {"adding row: #{trait_row}"}
+        @race_traits[race_id][trait_row[0]] = {
+          name:trait_row[0], 
+          description:trait_row[1], 
+          effect:YAML.load(trait_row[2]), 
+          id:trait_row[3]
+          }        
+      end
+    end
+    return @race_traits[race_id]
+  end
 end

@@ -86,3 +86,34 @@ racialtraits:
         replaces:
             - Bonus Feat
             - Skilled
+    - id:        9
+      raceid:    2
+      isdefault: 0
+      name: Arcane Focus
+      description: >
+        Some elven families have such long traditions of producing wizards and other arcane spellcasters
+        that they raise their children with the assumption each is destined to be a powerful magic-user, 
+        with little need for mundane concerns such as skill with weapons. Elves with this racial trait 
+        gain a +2 racial bonus on concentration checks made to cast arcane spells defensively.
+      effect:
+        effect_text: +2 on conc checks for casting
+        bonus:
+            type:racial
+            skill:concentration
+            value:2
+        replaces:
+            - Weapon Familiarity
+    - id:        10
+      raceid:    2
+      isdefault: 0
+      name: Darkvision
+      description: >
+        Though uncommon, some groups of elves are born with darkvision, rather than low-light vision. 
+        In many cases this is taken as a sign of a drow in the elf's ancestry, and can lead to persecution 
+        within the elf's home community. Elves with this racial trait gain darkvision with a range of 60 feet, 
+        but also gain sensitivity to light and are dazzled in areas of bright light or within the radius of a 
+        daylight spell.
+      effect: 
+        effect_text: Darkvision 60ft        
+        replaces:
+            - Low-Light Vision   

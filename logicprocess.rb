@@ -159,6 +159,8 @@ class LogicProcess
   
   def set_race(race)
     @char.race = race
+    update_alt_race_trait_store
+    update_race_trait_store
   end
   
   def get_race_optionals(race) 
@@ -234,6 +236,26 @@ class LogicProcess
     @dc.get_classes.keys
   end
   
+  def update_alt_race_trait_store #consolidate these two.
+    @alt_trait_store.clear
+    traits = @dc.get_race_alt_traits(get_races[@char.race])      
+    traits.keys.each do |key|
+      @log.debug {"adding: #{key}"}
+      new_row = @alt_trait_store.append()
+      new_row[0] = key
+    end
+  end
+  
+  def update_race_trait_store
+    @race_trait_store.clear
+    traits = @dc.get_race_traits(get_races[@char.race])      
+    traits.keys.each do |key|
+      @log.debug {"adding: #{key}"}
+      new_row = @race_trait_store.append()
+      new_row[0] = key
+    end
+  end
+  
   def get_alt_race_trait_store
     if @alt_trait_store.nil?
       @log.debug {"setting up ListStore for alt race traits"}
@@ -249,4 +271,18 @@ class LogicProcess
     return @alt_trait_store
   end
   
+  def get_race_trait_store
+    if @race_trait_store.nil?
+      @log.debug {"setting up ListStore for alt race traits"}
+      @race_trait_store = Gtk::ListStore.new(String)      
+      @log.debug {"getting races: #{get_races}"}
+      traits = @dc.get_race_traits(get_races[@char.race])      
+      traits.keys.each do |key|
+        @log.debug {"adding: #{key}"}
+        new_row = @race_trait_store.append()
+        new_row[0] = key
+      end
+    end
+    return @race_trait_store  
+  end  
 end
