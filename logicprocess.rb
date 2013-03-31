@@ -63,7 +63,8 @@ class LogicProcess
       :misc_attribute_scores => Array.new(6, 0),
       :levels => [],
       :level_hp => [],
-      :optionals => [])
+      :optionals => [],
+      :race => "Human")
   end
 
   def get_character
@@ -152,8 +153,12 @@ class LogicProcess
   
   def set_race_stats(race)
     @char.race_attribute_scores = Array.new(@dc.get_race_stats[race][:stats_array])
-    @char.race = race
+    set_race race
     @char.optionals = []
+  end
+  
+  def set_race(race)
+    @char.race = race
   end
   
   def get_race_optionals(race) 
@@ -221,14 +226,27 @@ class LogicProcess
   
   # Returns an array of races
   
-  def get_races
-    races = []
-    @dc.get_races.each {|race| races.push(race[0]) }    
-    return races
+  def get_races            
+    return Hash[*@dc.get_races.flatten]
   end
   
   def get_class_names
     @dc.get_classes.keys
+  end
+  
+  def get_alt_race_trait_store
+    if @alt_trait_store.nil?
+      @log.debug {"setting up ListStore for alt race traits"}
+      @alt_trait_store = Gtk::ListStore.new(String)      
+      @log.debug {"getting races: #{get_races}"}
+      traits = @dc.get_race_alt_traits(get_races[@char.race])      
+      traits.keys.each do |key|
+        @log.debug {"adding: #{key}"}
+        new_row = @alt_trait_store.append()
+        new_row[0] = key
+      end
+    end
+    return @alt_trait_store
   end
   
 end

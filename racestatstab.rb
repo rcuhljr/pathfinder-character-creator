@@ -33,6 +33,7 @@ class RaceStatsTab
     stats_box = Gtk::Table.new(rows = 7, columns = 6, homogeneous = false)
     race_box = Gtk::VBox.new(homogenous =false, spacing = 5)
     race_stats_row = Gtk::HBox.new(homogenous =false, spacing = nil)
+    alt_race_traits_row = Gtk::HBox.new(homogenous =false, spacing = nil)
     
     build_header_row(header_row)
     
@@ -44,9 +45,13 @@ class RaceStatsTab
     
     build_race_box(race_box)
     
+    build_alt_traits_row(alt_race_traits_row)
+    
     race_stats_row.pack_start(race_box, false, false, 10)
     
     race_stats_box.pack_start(race_stats_row, false, false, 0)
+    
+    race_stats_box.pack_start(alt_race_traits_row, false, false, 0)
     
     tab_holder.append_page(race_stats_box, tab_label)    
   end
@@ -218,6 +223,19 @@ class RaceStatsTab
     pointbuy_counter.set_markup("<span foreground=\"#{color}\">#{display_val}/#{pointbuy_limit.to_s}</span>")
   end
   
+  def build_alt_traits_row(trait_row)
+    store = @process.get_alt_race_trait_store()
+    listView = Gtk::TreeView.new(store)
+    listView.selection.mode = Gtk::SELECTION_SINGLE
+
+    # Create a renderer
+    renderer = Gtk::CellRendererText.new
+    # Add column using our renderer
+    col = Gtk::TreeViewColumn.new("Alternate Traits", renderer, :text => 0)
+    listView.append_column(col)
+    trait_row.pack_start(listView, false, false, 2)
+  end
+  
   def build_race_box(race_box)  
     race_row = Gtk::HBox.new(homogenous =false, spacing = nil)    
     @optional_stat_rows = Gtk::VBox.new(homogenous =false, spacing = nil)    
@@ -225,7 +243,7 @@ class RaceStatsTab
     
     race_label = Gtk::Label.new("Race:")
     race_entry = Gtk::ComboBox.new(is_text_only = true)   
-    @process.get_races.each_with_index do |race_text, index|
+    @process.get_races.keys.each_with_index do |race_text, index|
       race_entry.append_text(race_text)
       race_entry.set_active(index) if race_text == @char.race
     end
