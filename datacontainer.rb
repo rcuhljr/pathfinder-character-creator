@@ -152,38 +152,47 @@ class DataContainer
   def get_race_alt_traits (race_id)
     @race_alt_traits = {} if @race_alt_traits.nil?
     if @race_alt_traits[race_id].nil?
-      @log.debug {"Executing: Select name, description, effect, id from tblracialtraits where isdefault = 0 and raceid = '#{race_id}'"}
-      alt_traits = @db.execute ("Select name, description, effect, id from tblracialtraits where isdefault = 0 and raceid = '#{race_id}'")      
-      @race_alt_traits[race_id] = {}    
-      alt_traits.each do |trait_row|
-        @log.debug {"adding row: #{trait_row}"}
-        @race_alt_traits[race_id][trait_row[0]] = {
-          name:trait_row[0], 
-          description:trait_row[1], 
-          effect:YAML.load(trait_row[2]), 
-          id:trait_row[3]
-          }        
-      end
+      @race_alt_traits[race_id] = get_race_traits(race_id, 0)
     end
     return @race_alt_traits[race_id]
   end
   
-  def get_race_traits (race_id)
+  def get_all_race_traits(race_id)
     @race_traits = {} if @race_traits.nil?
     if @race_traits[race_id].nil?
-      @log.debug {"Executing: Select name, description, effect, id from tblracialtraits where isdefault = 1 and raceid = '#{race_id}'"}
-      alt_traits = @db.execute ("Select name, description, effect, id from tblracialtraits where isdefault = 1 and raceid = '#{race_id}'")      
-      @race_traits[race_id] = {}    
-      alt_traits.each do |trait_row|
-        @log.debug {"adding row: #{trait_row}"}
-        @race_traits[race_id][trait_row[0]] = {
-          name:trait_row[0], 
-          description:trait_row[1], 
-          effect:YAML.load(trait_row[2]), 
-          id:trait_row[3]
-          }        
-      end
+      @race_traits[race_id] = get_race_traits(race_id, nil)
     end
-    return @race_traits[race_id]
+    return @race_traits[race_id]    
+  end
+  
+  def get_base_race_traits (race_id)
+    @race_base_traits = {} if @race_base_traits.nil?
+    if @race_base_traits[race_id].nil?
+      @race_base_traits[race_id] = get_race_traits(race_id, 1)
+    end
+    return @race_base_traits[race_id]
+  end
+  
+  def get_race_traits(race_id, default)
+    query = ""
+    if default.nil?
+      query = "Select name, description, effect, id, isdefault from tblracialtraits where raceid = '#{race_id}'"
+    else
+      query = "Select name, description, effect, id, isdefault from tblracialtraits where isdefault = '#{default}' and raceid = '#{race_id}'"
+    end
+    @log.debug {query}
+    traits = @db.execute (query)      
+    results = {}    
+    traits.each do |trait_row|
+      @log.debug {"adding row: #{trait_row}"}
+      results[trait_row[0]] = {
+        name:trait_row[0], 
+        description:trait_row[1], 
+        effect:YAML.load(trait_row[2]), 
+        id:trait_row[3],
+        isdefault:trait_row[4]
+        }        
+    end
+    return results
   end
 end
