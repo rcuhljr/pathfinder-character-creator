@@ -22,7 +22,7 @@ racialtraits:
     - id:       2
       raceid:   1
       isdefault:  1
-      name: Skills
+      name: Skilled
       description: Humans gain an additional skill rank at first level and one additional rank whenever they gain a level.
       effect: 
         - skill_rank:1

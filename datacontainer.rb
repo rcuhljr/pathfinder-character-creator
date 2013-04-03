@@ -154,7 +154,7 @@ class DataContainer
     if @race_alt_traits[race_id].nil?
       @race_alt_traits[race_id] = get_race_traits(race_id, 0)
     end
-    return @race_alt_traits[race_id]
+    return @race_alt_traits[race_id].clone
   end
   
   def get_all_race_traits(race_id)
@@ -162,7 +162,7 @@ class DataContainer
     if @race_traits[race_id].nil?
       @race_traits[race_id] = get_race_traits(race_id, nil)
     end
-    return @race_traits[race_id]    
+    return @race_traits[race_id].clone
   end
   
   def get_base_race_traits (race_id)
@@ -170,7 +170,7 @@ class DataContainer
     if @race_base_traits[race_id].nil?
       @race_base_traits[race_id] = get_race_traits(race_id, 1)
     end
-    return @race_base_traits[race_id]
+    return @race_base_traits[race_id].clone
   end
   
   def get_race_traits(race_id, default)

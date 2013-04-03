@@ -258,7 +258,8 @@ class LogicProcess
   end
   
   def set_racial_traits
-    @char.racial_traits = Hash.new(@dc.get_base_race_traits(get_races[@char.race]))
+    @char.racial_traits = @dc.get_base_race_traits(get_races[@char.race])
+    @log.debug {"set_racial_traits #{@char.racial_traits}"}
   end
   
   def get_alt_race_trait_store
@@ -283,10 +284,10 @@ class LogicProcess
 
   def add_alt_race_trait(trait_iter)    
     return if trait_iter.nil?    
-    trait = trait_iter[0]
-    @log.debug {"add_alt_race_trait #{trait}"}
+    trait_name = trait_iter[0]
+    @log.debug {"add_alt_race_trait #{trait_name}"}
     traits = @dc.get_all_race_traits(get_races[@char.race])
-    trait = traits[trait] 
+    trait = traits[trait_name] 
     @log.debug{trait}
     if trait[:isdefault] == 0
       replaces = trait[:effect]["replaces"]
@@ -296,20 +297,81 @@ class LogicProcess
         @char.racial_traits.delete trait_to_remove         
         new_iter = @alt_trait_store.append()
         new_iter[0] = trait_to_remove
+        @alt_trait_store.each{|model, path, iter| @alt_trait_store.remove(iter) if traits[iter[0]][:isdefault] == 0 && traits[iter[0]][:effect]["replaces"].include?(trait_to_remove)}
+        @race_trait_store.each{|model, path, iter| @race_trait_store.remove(iter) if trait_to_remove == iter[0]}
       end
-      @race_trait_store.each{|model, path, iter| @race_trait_store.remove(iter) if replaces.include?(iter[0])}
+      
       
       @char.racial_traits[trait[:name]] = trait
       new_iter = @race_trait_store.append()
-      new_iter[0] = trait[:name]      
+      new_iter[0] = trait[:name]
+    else
+      trait_to_remove = @char.racial_traits.select{ |name, value| value[:isdefault] == 0 && value[:effect]["replaces"].include?(trait[:name])}.values[0]
+      @char.racial_traits.delete trait_to_remove[:name]
+      @log.debug {"trait_to_remove#{trait_to_remove}"}
+      @race_trait_store.each{|model, path, iter| @race_trait_store.remove(iter) if trait_to_remove[:name] == iter[0] }
+      trait_to_remove[:effect]["replaces"].each{ |target| 
+        @alt_trait_store.each{ |model, path, iter| 
+          if target == iter[0]
+            @alt_trait_store.remove(iter)
+            break
+          end
+          }
+        }
+      trait_to_remove[:effect]["replaces"].each do |trait_name|
+        @char.racial_traits[trait[:name]] = traits[trait_name]
+        new_iter = @race_trait_store.append()
+        new_iter[0] = trait_name
+      end
       
-      #TODO remove any other alt_race_traits that share replaces text.
+      new_iter = @alt_trait_store.append()
+      new_iter[0] = trait_to_remove[:name]
+      
+      traits = @dc.get_race_alt_traits(get_races[@char.race])
+      traits.keys.each do |alt_trait_name|
+        next if trait_to_remove[:name] == alt_trait_name
+        alt_trait = traits[alt_trait_name]      
+        @log.debug { "alt_trait #{alt_trait}" }
+        next unless alt_trait[:effect]["replaces"].inject(false) {|xs, x| xs or trait_to_remove[:effect]["replaces"].include? x}      
+        new_iter = @alt_trait_store.append()
+        new_iter[0] = alt_trait[:name]
+      end
+      
     end
   end
   
   def remove_alt_race_trait(trait_iter)    
     return if trait_iter.nil?    
-    trait = trait_iter[0]
-    @log.debug {"remove_alt_race_trait #{trait}"}
+    trait_name = trait_iter[0]
+    @log.debug {"remove_alt_race_trait #{trait_name}"}
+    trait = @char.racial_traits[trait_name]
+    
+    return if trait[:isdefault] == 1
+    
+    traits = @dc.get_all_race_traits(get_races[@char.race])
+    replaces = trait[:effect]["replaces"]
+    @char.racial_traits.delete trait[:name]
+    
+    @race_trait_store.remove(trait_iter)
+           
+    replaces.each do |replace| 
+      @char.racial_traits[replace] = traits[replace] 
+      new_iter = @race_trait_store.append()
+      new_iter[0] = replace
+      @alt_trait_store.each{|model, path, iter| @alt_trait_store.remove(iter) if replace == iter[0]}
+    end    
+    new_iter = @alt_trait_store.append()
+    new_iter[0] = trait[:name]
+    
+    traits = @dc.get_race_alt_traits(get_races[@char.race])
+    traits.keys.each do |alt_trait_name|
+      next if trait[:name] == alt_trait_name
+      alt_trait = traits[alt_trait_name]      
+      @log.debug { "alt_trait #{alt_trait}" }
+      next unless alt_trait[:effect]["replaces"].inject(false) {|xs, x| xs or replaces.include? x}      
+      new_iter = @alt_trait_store.append()
+      new_iter[0] = alt_trait[:name]
+    end
   end
+  
 end
