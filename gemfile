@@ -1,8 +1,5 @@
 source :rubygems
-source 'https://rubygems.org'
-source :rubyforge
-source 'https://gems.rubyforge.org'
-source :gemcutter
-source 'https://gemcutter.org'
+source 'http://rubygems.org'
 
-gem 'gtk2'
+gem 'qtbindings'
+gem 'sqlite3'
