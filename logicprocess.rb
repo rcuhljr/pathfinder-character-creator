@@ -236,14 +236,15 @@ class LogicProcess
     @dc.get_classes.keys
   end
   
-  def update_alt_race_trait_store #consolidate these two.
+  def update_alt_race_trait_store 
     @alt_trait_store.clear
     traits = @dc.get_race_alt_traits(get_races[@char.race])      
     traits.keys.each do |key|
       @log.debug {"adding: #{key}"}
       new_row = @alt_trait_store.append()
       new_row[0] = key
-    end    
+    end
+    @char.alt_trait_store = @alt_trait_store    
   end
   
   def update_race_trait_store
@@ -254,11 +255,12 @@ class LogicProcess
       new_row = @race_trait_store.append()
       new_row[0] = key
     end
+    @char.racial_trait_store = @racial_trait_store
     set_racial_traits
   end
   
   def set_racial_traits
-    @char.racial_traits = @dc.get_base_race_traits(get_races[@char.race])
+    @char.racial_traits = @dc.get_base_race_traits(get_races[@char.race])    
     @log.debug {"set_racial_traits #{@char.racial_traits}"}
   end
   
@@ -281,6 +283,11 @@ class LogicProcess
     end
     return @race_trait_store  
   end
+  
+  def replaces(trait)
+    return [] if trait[:isdefault] == 1
+    return trait[:effect]["replaces"]
+  end
 
   def add_alt_race_trait(trait_iter)    
     return if trait_iter.nil?    
@@ -289,8 +296,8 @@ class LogicProcess
     traits = @dc.get_all_race_traits(get_races[@char.race])
     trait = traits[trait_name] 
     @log.debug{trait}
-    if trait[:isdefault] == 0
-      replaces = trait[:effect]["replaces"]
+    if trait[:isdefault] == 0 #Moving non default trait to main list.
+      replaces = replaces(trait)
       @log.debug {"replaces #{replaces}"}
       @alt_trait_store.remove(trait_iter)
       replaces.each do |trait_to_remove| 

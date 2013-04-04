@@ -14,6 +14,8 @@
 #GNU General Public License for more details.
 #++
 
+load 'utilities.rb'
+
 class DataManager
   def initialize(logger)
     @log = logger
