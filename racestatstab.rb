@@ -234,10 +234,6 @@ class RaceStatsTab
     col = Gtk::TreeViewColumn.new("Racial Traits", renderer, :text => 0)
     race_list_view.append_column(col)
     
-    #scrolled_win = Gtk::ScrolledWindow.new
-    #scrolled_win.add(race_list_view)
-    #scrolled_win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-    #trait_row.pack_start(scrolled_win, false, false, 2)
     trait_row.pack_start(race_list_view, false, false, 2)
     
     button_col = Gtk::VBox.new(homogenous =false, spacing = nil)
@@ -261,10 +257,6 @@ class RaceStatsTab
     add_but.signal_connect("clicked") { @process.add_alt_race_trait list_view.selection.selected  }
     remove_but.signal_connect("clicked") { @process.remove_alt_race_trait race_list_view.selection.selected }
     
-    #scrolled_win = Gtk::ScrolledWindow.new
-    #scrolled_win.add(list_view)
-    #scrolled_win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
-    #trait_row.pack_start(scrolled_win, false, false, 2)
     trait_row.pack_start(list_view, false, false, 2)
   end
   

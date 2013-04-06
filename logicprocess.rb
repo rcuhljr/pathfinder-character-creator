@@ -237,51 +237,45 @@ class LogicProcess
   end
   
   def update_alt_race_trait_store 
-    @alt_trait_store.clear
+    @char.alt_trait_store.clear
     traits = @dc.get_race_alt_traits(get_races[@char.race])      
     traits.keys.each do |key|
       @log.debug {"adding: #{key}"}
-      new_row = @alt_trait_store.append()
+      new_row = @char.alt_trait_store.append()
       new_row[0] = key
-    end
-    @char.alt_trait_store = @alt_trait_store    
+    end      
   end
   
   def update_race_trait_store
-    @race_trait_store.clear
+    @char.racial_trait_store.clear
     traits = @dc.get_base_race_traits(get_races[@char.race])      
     traits.keys.each do |key|
       @log.debug {"adding: #{key}"}
-      new_row = @race_trait_store.append()
+      new_row = @char.racial_trait_store.append()
       new_row[0] = key
-    end
-    @char.racial_trait_store = @racial_trait_store
-    set_racial_traits
+    end    
   end
   
-  def set_racial_traits
-    @char.racial_traits = @dc.get_base_race_traits(get_races[@char.race])    
-    @log.debug {"set_racial_traits #{@char.racial_traits}"}
-  end
-  
-  def get_alt_race_trait_store
-    if @alt_trait_store.nil?
+  def get_alt_race_trait_store    
+    if @char.alt_trait_store.nil?      
       @log.debug {"setting up ListStore for alt race traits"}
-      @alt_trait_store = Gtk::ListStore.new(String)      
+      @char.alt_trait_store = Gtk::ListStore.new(String)
+      @char.alt_trait_store.column_count = 1
       @log.debug {"getting races: #{get_races}"}
       update_alt_race_trait_store
     end
-    return @alt_trait_store
+    return @char.alt_trait_store
   end
   
-  def get_race_trait_store
-    if @race_trait_store.nil?
+  def get_race_trait_store    
+    if @char.racial_trait_store.nil?
       @log.debug {"setting up ListStore for alt race traits"}
-      @race_trait_store = Gtk::ListStore.new(String)      
+      @char.racial_trait_store = Gtk::ListStore.new(String)      
+      @char.racial_trait_store.column_count = 1
       @log.debug {"getting races: #{get_races}"}
       update_race_trait_store
     end
-    return @race_trait_store  
+    return @char.racial_trait_store
   end
   
   def replaces(trait)
@@ -297,41 +291,37 @@ class LogicProcess
     trait = traits[trait_name] 
     @log.debug{trait}
     if trait[:isdefault] == 0 #Moving non default trait to main list.
-      replaces = replaces(trait)
-      @log.debug {"replaces #{replaces}"}
-      @alt_trait_store.remove(trait_iter)
-      replaces.each do |trait_to_remove| 
-        @char.racial_traits.delete trait_to_remove         
-        new_iter = @alt_trait_store.append()
+      replaced_list = replaces(trait)
+      @log.debug {"replaced_list #{replaced_list}"}
+      @char.alt_trait_store.remove(trait_iter)
+      replaced_list.each do |trait_to_remove|         
+        new_iter = @char.alt_trait_store.append()
         new_iter[0] = trait_to_remove
-        @alt_trait_store.each{|model, path, iter| @alt_trait_store.remove(iter) if traits[iter[0]][:isdefault] == 0 && traits[iter[0]][:effect]["replaces"].include?(trait_to_remove)}
-        @race_trait_store.each{|model, path, iter| @race_trait_store.remove(iter) if trait_to_remove == iter[0]}
-      end
+        @char.alt_trait_store.each{|model, path, iter| @char.alt_trait_store.remove(iter) if replaces(traits[iter[0]]).include?(trait_to_remove)}
+        @char.racial_trait_store.each{|model, path, iter| @char.racial_trait_store.remove(iter) if trait_to_remove == iter[0]}
+      end           
       
-      
-      @char.racial_traits[trait[:name]] = trait
-      new_iter = @race_trait_store.append()
+      new_iter = @char.racial_trait_store.append()
       new_iter[0] = trait[:name]
     else
-      trait_to_remove = @char.racial_traits.select{ |name, value| value[:isdefault] == 0 && value[:effect]["replaces"].include?(trait[:name])}.values[0]
-      @char.racial_traits.delete trait_to_remove[:name]
+      trait_to_remove = nil
+      @char.char.racial_trait_store.each{ |model, path, iter| trait_to_remove = traits[iter[0]] if replaces(traits[iter[0]]).include?(trait[:name])}      
       @log.debug {"trait_to_remove#{trait_to_remove}"}
-      @race_trait_store.each{|model, path, iter| @race_trait_store.remove(iter) if trait_to_remove[:name] == iter[0] }
-      trait_to_remove[:effect]["replaces"].each{ |target| 
-        @alt_trait_store.each{ |model, path, iter| 
+      @char.racial_trait_store.each{|model, path, iter| @char.racial_trait_store.remove(iter) if trait_to_remove[:name] == iter[0] }
+      replaces(trait_to_remove).each{ |target| 
+        @char.alt_trait_store.each{ |model, path, iter| 
           if target == iter[0]
-            @alt_trait_store.remove(iter)
+            @char.alt_trait_store.remove(iter)
             break
           end
           }
         }
-      trait_to_remove[:effect]["replaces"].each do |trait_name|
-        @char.racial_traits[trait[:name]] = traits[trait_name]
-        new_iter = @race_trait_store.append()
+      replaces(trait_to_remove).each do |trait_name|        
+        new_iter = @char.racial_trait_store.append()
         new_iter[0] = trait_name
       end
       
-      new_iter = @alt_trait_store.append()
+      new_iter = @char.alt_trait_store.append()
       new_iter[0] = trait_to_remove[:name]
       
       traits = @dc.get_race_alt_traits(get_races[@char.race])
@@ -339,8 +329,8 @@ class LogicProcess
         next if trait_to_remove[:name] == alt_trait_name
         alt_trait = traits[alt_trait_name]      
         @log.debug { "alt_trait #{alt_trait}" }
-        next unless alt_trait[:effect]["replaces"].inject(false) {|xs, x| xs or trait_to_remove[:effect]["replaces"].include? x}      
-        new_iter = @alt_trait_store.append()
+        next unless replaces(alt_trait).inject(false) {|xs, x| xs or replaces(trait_to_remove).include? x}      
+        new_iter = @char.alt_trait_store.append()
         new_iter[0] = alt_trait[:name]
       end
       
@@ -351,23 +341,21 @@ class LogicProcess
     return if trait_iter.nil?    
     trait_name = trait_iter[0]
     @log.debug {"remove_alt_race_trait #{trait_name}"}
-    trait = @char.racial_traits[trait_name]
-    
-    return if trait[:isdefault] == 1
-    
     traits = @dc.get_all_race_traits(get_races[@char.race])
-    replaces = trait[:effect]["replaces"]
-    @char.racial_traits.delete trait[:name]
+    trait = traits[trait_name]
     
-    @race_trait_store.remove(trait_iter)
+    return if trait[:isdefault] == 1    
+    
+    replaced_list = replaces(trait)    
+    
+    @char.racial_trait_store.remove(trait_iter)
            
-    replaces.each do |replace| 
-      @char.racial_traits[replace] = traits[replace] 
-      new_iter = @race_trait_store.append()
+    replaced_list.each do |replace|       
+      new_iter = @char.racial_trait_store.append()
       new_iter[0] = replace
-      @alt_trait_store.each{|model, path, iter| @alt_trait_store.remove(iter) if replace == iter[0]}
+      @char.alt_trait_store.each{|model, path, iter| @char.alt_trait_store.remove(iter) if replace == iter[0]}
     end    
-    new_iter = @alt_trait_store.append()
+    new_iter = @char.alt_trait_store.append()
     new_iter[0] = trait[:name]
     
     traits = @dc.get_race_alt_traits(get_races[@char.race])
@@ -375,8 +363,8 @@ class LogicProcess
       next if trait[:name] == alt_trait_name
       alt_trait = traits[alt_trait_name]      
       @log.debug { "alt_trait #{alt_trait}" }
-      next unless alt_trait[:effect]["replaces"].inject(false) {|xs, x| xs or replaces.include? x}      
-      new_iter = @alt_trait_store.append()
+      next unless replaces(alt_trait).inject(false) {|xs, x| xs or replaced_list.include? x}      
+      new_iter = @char.alt_trait_store.append()
       new_iter[0] = alt_trait[:name]
     end
   end

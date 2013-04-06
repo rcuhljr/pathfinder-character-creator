@@ -22,30 +22,44 @@ end
 
 module Gtk  
   class ListStore
-    def _dump level
-      arr_of_arr = []
+    attr_accessor :column_count
+    def _dump level      
+      return Marshal.dump(build_data_array)
+    end
+
+    def build_data_array
+    arr_of_arr = []
       headers = []
       arr_of_arr << headers
       self.each do |model, path, iter| 
-        arr = []
-        count = 0
-        while not iter[count].nil? 
+        arr = []        
+        (0..(@column_count-1)).each do |count|        
           headers << iter[count].class if arr_of_arr.length == 1
           arr << iter[count]        
           count += 1
         end
         arr_of_arr << arr
       end
-      return Marshal.dump(arr_of_arr)
-    end  
+      return arr_of_arr
+    end
     
     def self._load(data)
       data = Marshal.load(data)
       headers = data.shift      
       store = new(*headers)      
+      store.column_count = headers.size
       data.each{|item_row| item_row.each_with_index{ |value, index| 
          iter = store.append(); iter[index] = value }}
       return store
+    end
+    
+    def ==(other)
+      puts "comparing"
+      mydata = self.build_data_array
+      puts "base data #{mydata}"
+      otherdata = other.build_data_array      
+      puts "other data #{otherdata}"      
+      return mydata == otherdata
     end
   end
 end
